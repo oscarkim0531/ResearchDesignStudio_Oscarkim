@@ -1,0 +1,99 @@
+:root {
+    --bg: #0a0a0a; /* 깊은 블랙 배경 */
+    --accent: #ff3b30;
+    --gray-dark: #222;
+    --gray-light: #666;
+    --text: #ffffff;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    margin: 0;
+    font-family: 'Pretendard', sans-serif;
+    overflow-x: hidden;
+}
+
+/* 상단 고정 헤더: 시스템적인 느낌 */
+.global-status {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--gray-dark);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+}
+
+.label { color: var(--gray-light); margin-right: 10px; }
+
+/* 단계 인디케이터: 해지의 단계를 시각화 */
+.step-indicator {
+    display: flex;
+    gap: 40px;
+}
+
+.step {
+    color: var(--gray-dark);
+    transition: 0.3s;
+    position: relative;
+}
+
+.step.active { color: var(--accent); }
+.step::after {
+    content: '';
+    position: absolute;
+    bottom: -5px; left: 0;
+    width: 0; height: 1px;
+    background: var(--accent);
+    transition: 0.5s;
+}
+.step.active::after { width: 100%; }
+
+/* 히어로 섹션 */
+.intro-section {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.hero-title {
+    font-size: 5vw;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 20px;
+}
+
+.dim { color: var(--gray-dark); }
+
+.hero-sub {
+    font-size: 14px;
+    color: var(--gray-light);
+    max-width: 400px;
+}
+
+/* 인터랙션 버튼 */
+.start-btn {
+    margin-top: 50px;
+    background: none;
+    border: 1px solid var(--text);
+    color: var(--text);
+    padding: 15px 40px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.start-btn:hover {
+    background: var(--text);
+    color: var(--bg);
+}
