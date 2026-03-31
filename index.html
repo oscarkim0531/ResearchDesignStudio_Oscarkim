@@ -31,18 +31,38 @@
     </section>
 
     <script>
-      const SPREADSHEET_ID = "1XpMopJdNPNREbfVYSX0fMpUDanTOUpqHBcin6wnjSu8";
+      const SPREADSHEET_ID = "1VzerbOerqPiRTUyM7YSOhHmLmkvMyhdFJ77gH2Xyqeg";
 
       const KEYS = {
-        title:       "구독 경제 이름",
-        description: "매체 성격",
-        about:       "소유/사용 유형",
-        project:     "서비스 카테고리",
-        date:        "구독 사업 시작일",
-        location:    "지원 국가",
-        note:        "주요 타겟층",
-        image:       "UL-Images",
-      };
+        // 1. 서비스 기본 정보
+        serviceName:      "Service Name",
+        mediaType:        "Media Type",
+        ownershipType:    "Ownership Type",
+        category:         "Category",
+        launchDate:       "Launch Date",
+        region:           "Region",
+        targetAudience:   "Target Audience",
+        marketShare:      "Market Share",
+
+        // 2. 비즈니스 및 해지 관련
+        billingCycle:     "Billing Cycle",
+        pricing:          "Pricing (Monthly)",
+        cancellationFeatures: "Cancellation Features",
+        difficulty:       "Difficulty",
+        fullTerms:        "Full Terms",
+        sourceUrl:        "Source URL",
+
+        // 3. 타이포그래피 및 디자인 수치
+        fontFamily:       "Font Family",
+        fontSize:         "Font Size",
+        leading:          "Leading",
+        tracking:         "Tracking",
+        backgroundColor:  "Background Color",
+        textColor:        "Text Color",
+        
+        // 4. 기타
+        notes:            "Notes"
+        };
 
       const CSV_URL =
         `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv`;
@@ -81,54 +101,62 @@
 
       fetch(CSV_URL)
         .then((res) => {
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          return res.text();
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.text();
         })
         .then((text) => {
-          const rows = parseCSV(text);
-          const first = rows[0] || {};
+            const rows = parseCSV(text);
+            const first = rows[0] || {};
 
-          // 메타 정보
-          document.getElementById("site-title").textContent = first[KEYS.title]       || "";
-          document.getElementById("site-desc").textContent  = first[KEYS.description] || "";
-          document.getElementById("about-text").textContent = first[KEYS.about]       || "";
-          document.title = first[KEYS.title] || "";
+            // 1. 메타 정보 업데이트 (KEYS 객체의 정의된 이름으로 수정)
+            document.getElementById("site-title").textContent = "Cancellation Terms Archive"; 
+            document.getElementById("site-desc").textContent  = "Visualizing the 'evaporating time' hidden behind dark patterns.";
+            document.getElementById("about-text").textContent = "An inquiry into the legitimacy of readability in subscription economies.";
+            document.title = "Research Design Studio | Archive";
 
-          const grid = document.getElementById("grid");
+            const grid = document.getElementById("grid");
+            grid.innerHTML = ""; // 초기화
 
-          rows.forEach((row) => {
-            if (!row[KEYS.project]) return;
+            rows.forEach((row) => {
+            // '서비스명'이 비어있으면 생성하지 않음
+            if (!row[KEYS.serviceName]) return;
 
             const card = document.createElement("div");
             card.className = "card";
-
-            if (row[KEYS.image]) {
-              const img = document.createElement("img");
-              img.src     = row[KEYS.image];
-              img.alt     = row[KEYS.project];
-              img.loading = "lazy";
-              card.appendChild(img);
-            }
-
-            const body = document.createElement("div");
-            body.className = "card-body";
-
-            const year     = row[KEYS.date]
-              ? Math.floor(Number(row[KEYS.date])) || row[KEYS.date]
-              : "";
-            const location = row[KEYS.location] || "";
-            const note     = row[KEYS.note]     || "";
-
-            body.innerHTML = `
-              <p class="project-name">${row[KEYS.project]}</p>
-              <p class="project-meta">${[year, location].filter(Boolean).join(" | ")}</p>
-              ${note ? `<p class="project-note">${note}</p>` : ""}
+            
+            // 2. 미리보기 스타일 설정 (정확한 KEYS 속성명 매칭)
+            // 배경색과 글자색이 시트에서 HEX 코드로 잘 입력되어 있어야 합니다.
+            const previewStyle = `
+                background-color: ${row[KEYS.backgroundColor] || '#ffffff'}; 
+                color: ${row[KEYS.textColor] || '#000000'};
             `;
 
-            card.appendChild(body);
+            card.innerHTML = `
+                <div class="card-preview" style="${previewStyle}">
+                <span style="font-size: ${row[KEYS.fontSize]}px; line-height: ${row[KEYS.leading]}; font-family: ${row[KEYS.fontFamily]};">
+                    Sample Text
+                </span>
+                </div>
+                <div class="card-body">
+                <div class="card-header">
+                    <span class="category">${row[KEYS.category]}</span>
+                    <span class="difficulty ${row[KEYS.difficulty]}">Lv. ${row[KEYS.difficulty]}</span>
+                </div>
+                <h2 class="service-name">${row[KEYS.serviceName]}</h2>
+                <p class="features">${row[KEYS.cancellationFeatures]}</p>
+                <div class="specs">
+                    <span>Size: <strong>${row[KEYS.fontSize]}pt</strong></span>
+                    <span>Leading: <strong>${row[KEYS.leading]}</strong></span>
+                    <span>Color: <strong>${row[KEYS.textColor]}</strong></span>
+                </div>
+                </div>
+            `;
+
             grid.appendChild(card);
-          });
+            });
         })
+
+        
         .catch((err) => {
           console.error("Error:", err);
           document.getElementById("grid").innerHTML =
