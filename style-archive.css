@@ -258,3 +258,9 @@ body {
 .modal-scroll::-webkit-scrollbar-thumb {
     background: #333;
 }
+
+.terms-body {
+    /* 이 속성이 있어야 불러온 데이터 내의 \n (줄바꿈)이 실제 줄바꿈으로 보입니다. */
+    white-space: pre-wrap; 
+    word-break: break-all; /* 너무 긴 단어가 영역을 넘어가지 않도록 방지 */
+}
