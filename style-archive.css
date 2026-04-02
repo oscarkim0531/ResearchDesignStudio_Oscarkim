@@ -1,0 +1,87 @@
+/* archive.html 전용 스타일 */
+body {
+    background-color: #000; /* 메인 배경과 통일 */
+    color: #fff;
+    margin: 0;
+    font-family: 'Pretendard', sans-serif;
+}
+
+#grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1px;
+    background-color: #333; /* 그리드 선 색상 */
+}
+
+.card {
+    background-color: #000;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid #333;
+    transition: background 0.3s;
+}
+
+.card:hover {
+    background-color: #111;
+}
+
+.card-preview {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    text-align: center;
+    overflow: hidden;
+}
+
+.card-body {
+    padding: 25px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.difficulty.어려움 { color: #ff4444; }
+.difficulty.보통 { color: #ffbb33; }
+.difficulty.쉬움 { color: #00C851; }
+
+.service-name {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    letter-spacing: -0.03em;
+}
+
+.features {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #bbb;
+    margin-bottom: 20px;
+    height: 4.8em;
+    overflow: hidden;
+}
+
+.specs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid #333;
+    padding-top: 15px;
+}
+
+.specs span {
+    font-size: 0.65rem;
+    color: #666;
+    display: flex;
+    flex-direction: column;
+}
+
+.specs strong {
+    color: #fff;
+    font-size: 0.85rem;
+    margin-top: 5px;
+}

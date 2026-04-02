@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="./style-archive.css">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+</head>
+<body>
+    <div id="grid">
+        <p class="loading">Loading Archive Data...</p>
+    </div>
+
+    <script>
+        const SPREADSHEET_ID = "1VzerbOerqPiRTUyM7YSOhHmLmkvMyhdFJ77gH2Xyqeg";
+        const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv`;
+
+        const KEYS = {
+            serviceName: "Service Name",
+            category: "Category",
+            difficulty: "Difficulty",
+            cancellationFeatures: "Cancellation Features",
+            fontSize: "Font Size",
+            leading: "Leading",
+            backgroundColor: "Background Color",
+            textColor: "Text Color",
+            fontFamily: "Font Family"
+        };
+
+        function parseCSV(text) {
+            const lines = text.trim().split("\n");
+            const headers = lines[0].split(",").map(h => h.trim().replace(/"/g, ''));
+            return lines.slice(1).map(line => {
+                const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); // 따옴표 안 쉼표 무시 정규식
+                const obj = {};
+                headers.forEach((h, i) => {
+                    obj[h] = (values[i] || "").trim().replace(/"/g, '');
+                });
+                return obj;
+            });
+        }
+
+        fetch(CSV_URL)
+            .then(res => res.text())
+            .then(text => {
+                const rows = parseCSV(text);
+                const grid = document.getElementById("grid");
+                grid.innerHTML = "";
+
+                rows.forEach(row => {
+                    if (!row[KEYS.serviceName]) return;
+
+                    const card = document.createElement("div");
+                    card.className = "card";
+                    
+                    const previewStyle = `
+                        background-color: ${row[KEYS.backgroundColor] || '#ffffff'}; 
+                        color: ${row[KEYS.textColor] || '#000000'};
+                    `;
+
+                    card.innerHTML = `
+                        <div class="card-preview" style="${previewStyle}">
+                            <span style="font-size: ${row[KEYS.fontSize]}pt; line-height: ${row[KEYS.leading]}; font-family: ${row[KEYS.fontFamily]};">
+                                ${row[KEYS.serviceName]}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-header">
+                                <span class="category">${row[KEYS.category]}</span>
+                                <span class="difficulty ${row[KEYS.difficulty]}">${row[KEYS.difficulty]}</span>
+                            </div>
+                            <h2 class="service-name">${row[KEYS.serviceName]}</h2>
+                            <p class="features">${row[KEYS.cancellationFeatures]}</p>
+                            <div class="specs">
+                                <span>Size<strong>${row[KEYS.fontSize]}pt</strong></span>
+                                <span>Leading<strong>${row[KEYS.leading]}</strong></span>
+                                <span>Color<strong>${row[KEYS.textColor]}</strong></span>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            });
+    </script>
+</body>
+</html>
