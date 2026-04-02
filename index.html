@@ -5,138 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cancellation Terms Archive | Research Design Studio</title>
     <link rel="stylesheet" href="./style.css" type="text/css" media="all">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <meta name="description" content="Visualizing the 'evaporating time' hidden behind dark patterns. An inquiry into the legitimacy of readability in subscription economies.">
+    <meta name="author" content="OscarKim">
     <link rel="icon" href="./Cancellation-Terms_Favicon.png" type="image/png">
 </head>
+<body class="dark-mode">
 
-<body>
-
-    <header>
-      <h1 id="site-title">CANCELLATION TERMS</h1>
-      <p id="site-desc">Visualizing the 'evaporating time' hidden behind dark patterns.</p>
-    </header>
-
-    <section class="about">
-      <p id="about-text">An inquiry into the legitimacy of readability in subscription economies.</p>
-    </section>
-
-    <section class="works">
-      <div id="grid">
+    <nav class="top-nav">
+        <div class="nav-left">
+            <h1 class="logo">CANCELLATION TERMS</h1>
+            <div class="mode-switch">
+                <button id="btn-loop" class="active">ENDLESS LOOP</button>
+                <button id="btn-archive">ARCHIVE</button>
+            </div>
         </div>
-    </section>
+        <div class="nav-right">
+            <button id="btn-about">ABOUT</button>
+        </div>
+    </nav>
+
+    <main>
+        <section id="section-loop" class="content-section">
+            <div id="loop-container">
+                <p class="placeholder-text">LOADING ENDLESS TERMS...</p>
+            </div>
+        </section>
+
+        <section id="section-archive" class="content-section hidden">
+            <div id="grid">
+                </div>
+        </section>
+    </main>
+
+    <div id="about-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Project Description</h2>
+            <p>Visualizing the 'evaporating time' hidden behind dark patterns...</p>
+        </div>
+    </div>
 
     <script>
-      const SPREADSHEET_ID = "1VzerbOerqPiRTUy)7YSOhHmLmkvMyhdFJ77gH2Xyqeg"; // 본인의 ID 확인
+        // 탭 전환 및 모달 제어 기본 스크립트
+        const btnLoop = document.getElementById('btn-loop');
+        const btnArchive = document.getElementById('btn-archive');
+        const btnAbout = document.getElementById('btn-about');
+        const sectionLoop = document.getElementById('section-loop');
+        const sectionArchive = document.getElementById('section-archive');
+        const modal = document.getElementById('about-modal');
+        const closeBtn = document.querySelector('.close-button');
 
-      const KEYS = {
-        serviceName:      "Service Name",
-        mediaType:        "Media Type",
-        ownershipType:    "Ownership Type",
-        category:         "Category",
-        launchDate:       "Launch Date",
-        region:           "Region",
-        targetAudience:   "Target Audience",
-        marketShare:      "Market Share",
-        billingCycle:     "Billing Cycle",
-        pricing:          "Pricing (Monthly)",
-        cancellationFeatures: "Cancellation Features",
-        difficulty:       "Difficulty",
-        fullTerms:        "Full Terms",
-        sourceUrl:        "Source URL",
-        fontFamily:       "Font Family",
-        fontSize:         "Font Size",
-        leading:          "Leading",
-        tracking:         "Tracking",
-        backgroundColor:  "Background Color",
-        textColor:        "Text Color",
-        notes:            "Notes"
-      };
+        // Loop 버튼 클릭
+        btnLoop.onclick = () => {
+            btnLoop.className = 'active';
+            btnArchive.className = '';
+            sectionLoop.classList.remove('hidden');
+            sectionArchive.classList.add('hidden');
+        };
 
-      const CSV_URL = `https://docs.google.com/spreadsheets/d/1VzerbOerqPiRTUyM7YSOhHmLmkvMyhdFJ77gH2Xyqeg/export?format=csv`;
+        // Archive 버튼 클릭
+        btnArchive.onclick = () => {
+            btnArchive.className = 'active';
+            btnLoop.className = '';
+            sectionArchive.classList.remove('hidden');
+            sectionLoop.classList.add('hidden');
+        };
 
-      function parseCSV(text) {
-        const lines = text.trim().split("\n");
-        const headers = splitCSVLine(lines[0]);
-        return lines.slice(1).map((line) => {
-          const values = splitCSVLine(line);
-          const obj = {};
-          headers.forEach((h, i) => {
-            obj[h.trim()] = (values[i] || "").trim();
-          });
-          return obj;
-        });
-      }
-
-      function splitCSVLine(line) {
-        const result = [];
-        let current = "";
-        let inQuotes = false;
-        for (let i = 0; i < line.length; i++) {
-          const ch = line[i];
-          if (ch === '"') inQuotes = !inQuotes;
-          else if (ch === "," && !inQuotes) {
-            result.push(current);
-            current = "";
-          } else {
-            current += ch;
-          }
-        }
-        result.push(current);
-        return result;
-      }
-
-      fetch(CSV_URL)
-        .then((res) => {
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          return res.text();
-        })
-        .then((text) => {
-          const rows = parseCSV(text);
-          const grid = document.getElementById("grid");
-          grid.innerHTML = ""; 
-
-          rows.forEach((row) => {
-            // 'Service Name' 컬럼에 값이 없으면 카드를 만들지 않음
-            if (!row[KEYS.serviceName]) return;
-
-            const card = document.createElement("div");
-            card.className = "card";
-            
-            // 시트에서 가져온 디자인 수치 적용
-            const previewStyle = `
-              background-color: ${row[KEYS.backgroundColor] || '#ffffff'}; 
-              color: ${row[KEYS.textColor] || '#000000'};
-            `;
-
-            // 카드 내부 구조: 한 서비스의 모든 정보가 이 안에 담김
-            card.innerHTML = `
-              <div class="card-preview" style="${previewStyle}">
-                <span style="font-size: ${row[KEYS.fontSize]}pt; line-height: ${row[KEYS.leading]}; font-family: ${row[KEYS.fontFamily]};">
-                  ${row[KEYS.serviceName]} Terms
-                </span>
-              </div>
-              <div class="card-body">
-                <div class="card-header">
-                  <span class="category">${row[KEYS.category]}</span>
-                  <span class="difficulty ${row[KEYS.difficulty]}">${row[KEYS.difficulty]}</span>
-                </div>
-                <h2 class="service-name">${row[KEYS.serviceName]}</h2>
-                <p class="features">${row[KEYS.cancellationFeatures]}</p>
-                <div class="specs">
-                  <span>Size<strong>${row[KEYS.fontSize]}pt</strong></span>
-                  <span>Leading<strong>${row[KEYS.leading]}</strong></span>
-                  <span>Color<strong>${row[KEYS.textColor]}</strong></span>
-                </div>
-              </div>
-            `;
-
-            grid.appendChild(card);
-          });
-        })
-        .catch((err) => {
-          console.error("Error:", err);
-          document.getElementById("grid").innerHTML = `<p style="color:red; padding:2rem;">데이터 로드 실패: 시트의 헤더 영문명이 코드와 일치하는지 확인하세요.</p>`;
-        });
+        // About 모달 제어
+        btnAbout.onclick = () => modal.classList.remove('hidden');
+        closeBtn.onclick = () => modal.classList.add('hidden');
+        window.onclick = (event) => {
+            if (event.target == modal) modal.classList.add('hidden');
+        };
     </script>
 </body>
 </html>
