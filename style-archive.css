@@ -96,6 +96,7 @@ body {
     /* 3줄까지만 노출 후 생략 */
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
