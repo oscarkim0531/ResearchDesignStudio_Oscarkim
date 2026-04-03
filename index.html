@@ -28,13 +28,22 @@
 
     <main>
         <section id="section-loop" class="content-section">
-            <div id="loop-container">
-                <p class="placeholder-text">LOADING ENDLESS TERMS...</p>
-            </div>
+            <iframe 
+                src="./endless-loop.html" 
+                id="loop-frame" 
+                frameborder="0" 
+                style="width: 100%; height: calc(100vh - 80px); background: transparent;"
+                title="Endless Loop: Infinite Cancellation Terms">
+            </iframe>
         </section>
 
         <section id="section-archive" class="content-section hidden">
-            <iframe src="./archive.html" id="archive-frame" frameborder="0" style="width:100%; height:calc(100vh - 80px);"></iframe>
+            <iframe 
+                src="./archive.html"
+                id="archive-frame"
+                frameborder="0"
+                style="width:100%; height:calc(100vh - 80px);">
+            </iframe>
         </section>
     </main>
 

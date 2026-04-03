@@ -1,0 +1,55 @@
+/* ---------------------------------------------------------
+   Endless Loop 전용 스타일
+--------------------------------------------------------- */
+
+/* 배경 투명화: index.html의 다크 배경을 그대로 투사 */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: transparent; 
+    overflow: hidden; /* 브라우저 자체 스크롤바 제거 */
+}
+
+.loop-body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+#loop-wrapper {
+    width: 100%;
+    max-width: 1200px; /* 문장 가독성을 위한 최대폭 제한 */
+    height: 100vh;
+    position: relative;
+}
+
+/* 자동으로 올라가는 컨텐츠 영역 */
+#scroll-content {
+    position: absolute;
+    width: 100%;
+    top: 100%; /* 화면 아래에서 시작 */
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem; /* 문장 간 간격 */
+    padding: 2rem 0;
+}
+
+/* 로딩 상태 메시지 디자인 */
+.status-msg {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 0.8rem;
+    color: #444;
+    text-align: center;
+    letter-spacing: 0.2em;
+    margin-top: 20vh;
+}
+
+/* [핵심 애니메이션 비전]
+   추후 자바스크립트로 데이터 로딩 후, 
+   CSS Animation이나 GSAP을 통해 
+   끊임없이 위로 흐르는 무한 루프를 구현할 예정입니다.
+*/

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endless Loop | Cancellation Terms</title>
+    
+    <link rel="stylesheet" href="./style-endless-loop.css">
+    
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body class="loop-body">
+
+    <div id="loop-wrapper">
+        <div id="scroll-content">
+            <p class="status-msg">CONNECTING TO STREAM...</p>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * 4. 데이터 스트림 설정 (추후 시트 연결 시 수정할 부분)
+         * 새로운 시트 ID와 구조에 맞춰 fetch 로직을 구성할 예정입니다.
+         */
+        const LOOP_SPREADSHEET_ID = "여기에_새로운_시트_ID_입력"; 
+        const LOOP_CSV_URL = `https://docs.google.com/spreadsheets/d/${LOOP_SPREADSHEET_ID}/export?format=csv`;
+
+        // 자동 스크롤 애니메이션 및 데이터 바인딩 로직이 여기에 들어갈 자리입니다.
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log("Endless Loop Layer Ready.");
+            // 추후 승민님이 시트 준비되면 이곳에 실제 구동 코드를 작성하겠습니다.
+        });
+    </script>
+</body>
+</html>
