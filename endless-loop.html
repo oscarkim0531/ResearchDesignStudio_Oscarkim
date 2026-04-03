@@ -6,7 +6,16 @@
     <title>Endless Loop | Cancellation Terms</title>
     
     <link rel="stylesheet" href="./style-endless-loop.css">
-    
+    <script>
+        (function(d) {
+            var config = {
+            kitId: 'nfx4doc',
+            scriptTimeout: 3000,
+            async: true
+            },
+            h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='https://use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
+        })(document);
+    </script>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
 </head>
@@ -14,23 +23,113 @@
 
     <div id="loop-wrapper">
         <div id="scroll-content">
-            <p class="status-msg">CONNECTING TO STREAM...</p>
+            <p class="status-msg">INITIALIZING DATA STREAM...</p>
         </div>
     </div>
 
     <script>
-        /**
-         * 4. 데이터 스트림 설정 (추후 시트 연결 시 수정할 부분)
-         * 새로운 시트 ID와 구조에 맞춰 fetch 로직을 구성할 예정입니다.
-         */
-        const LOOP_SPREADSHEET_ID = "여기에_새로운_시트_ID_입력"; 
+        const LOOP_SPREADSHEET_ID = "1u_g0_sTB0IDUcopOMRUSM8lVtMSWcSaUgLcaru-pHyg";
         const LOOP_CSV_URL = `https://docs.google.com/spreadsheets/d/${LOOP_SPREADSHEET_ID}/export?format=csv`;
 
-        // 자동 스크롤 애니메이션 및 데이터 바인딩 로직이 여기에 들어갈 자리입니다.
-        window.addEventListener('DOMContentLoaded', () => {
-            console.log("Endless Loop Layer Ready.");
-            // 추후 승민님이 시트 준비되면 이곳에 실제 구동 코드를 작성하겠습니다.
-        });
+        const KEYS = {
+            sentence: "Sentence",
+            fontFamily: "FontFamily",
+            fontSize: "FontSize",
+            leading: "Leading",
+            tracking: "Tracking",
+            textColor: "Text Color",
+            backgroundColor: "Background Color"
+        };
+
+        function parseCSV(text) {
+            const rows = [];
+            let currentLine = "";
+            let inQuotes = false;
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                if (char === '"') inQuotes = !inQuotes;
+                if (char === '\n' && !inQuotes) {
+                    rows.push(currentLine);
+                    currentLine = "";
+                } else {
+                    currentLine += char;
+                }
+            }
+            if (currentLine) rows.push(currentLine);
+
+            // 헤더 추출 시 공백 및 따옴표 제거 철저히 수행
+            const headers = rows[0].split(",").map(h => h.trim().replace(/"/g, ''));
+            return rows.slice(1).map(line => {
+                const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                const obj = {};
+                headers.forEach((h, i) => {
+                    obj[h] = (values[i] || "").trim().replace(/"/g, '');
+                });
+                return obj;
+            });
+        }
+
+        fetch(LOOP_CSV_URL)
+            .then(res => res.text())
+            .then(text => {
+                const rows = parseCSV(text);
+                const content = document.getElementById("scroll-content");
+                content.innerHTML = ""; // 로딩 메시지 제거
+
+                const shuffledRows = rows.sort(() => Math.random() - 0.5);
+
+                // 무한 루프 느낌을 위해 데이터를 2번 반복해서 생성 (심리스 스크롤용)
+                const doubleRows = [...shuffledRows, ...shuffledRows];
+
+                doubleRows.forEach((row, index) => {
+                    if (!row[KEYS.sentence]) return;
+
+                    const p = document.createElement("span");
+                    p.className = "term-sentence";
+                    p.innerText = row[KEYS.sentence] + " ";
+
+                    // --- [수치 및 스타일 보정 로직] ---
+                    
+                    // 1. 글자 크기 (pt)
+                    const fSize = parseFloat(row[KEYS.fontSize]) || 12;
+                    
+                    // 2. 행간(Leading) 보정: Leading(pt) / FontSize(pt) = line-height ratio
+                    const leadingVal = parseFloat(row[KEYS.leading]) || (fSize * 1.2);
+                    const lineHeightRatio = leadingVal / fSize;
+
+                    // 3. 자간(Tracking) 보정: Adobe Tracking / 1000 = em
+                    const trackingVal = parseFloat(row[KEYS.tracking]) || 0;
+                    const letterSpacing = (trackingVal / 1000) + "em";
+
+                    // 4. 색상 보정: #이 중복되거나 누락되지 않도록 처리
+                    const rawTxt = (row[KEYS.textColor] || "#ffffff").trim();
+                    const rawBg = (row[KEYS.backgroundColor] || "#000000").trim();
+                    
+                    // 정규식을 사용하여 앞에 붙은 모든 #을 제거한 뒤 딱 하나만 붙임
+                    const color = "#" + rawTxt.replace(/^#+/, "");
+                    const bgColor = "#" + rawBg.replace(/^#+/, "");
+
+                    // 5. 서체 이름 보정: 시트의 이름을 작은따옴표로 감싸서 안전하게 적용
+                    const sheetFont = row[KEYS.fontFamily] || "Pretendard";
+                    
+                    // 스타일 주입
+                    p.style.fontFamily = `'${sheetFont}', "Pretendard", sans-serif`;  
+                    p.style.fontSize = fSize + "pt";
+                    p.style.lineHeight = lineHeightRatio;
+                    p.style.letterSpacing = letterSpacing;
+                    p.style.color = color;
+                    p.style.backgroundColor = bgColor;
+                    p.style.border = "4px solid #33ff33"; // 요청하신 흰색 테두리
+
+                    content.appendChild(p);
+                });
+
+                // 데이터 양에 따라 스크롤 속도 자동 조절 (선택사항)
+                // content.style.animationDuration = `${rows.length * 4}s`;
+            })
+            .catch(err => {
+                console.error("Data Load Error:", err);
+            });
     </script>
 </body>
 </html>
