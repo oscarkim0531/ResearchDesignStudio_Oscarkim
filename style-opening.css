@@ -3,23 +3,60 @@ body {
     padding: 0;
     background-color: #000;
     overflow: hidden;
+    /* nav 바닥에 깔리지 않고 화면 전체(Full Screen)를 덮도록 설정 */
     width: 100vw;
     height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    transition: opacity 0.5s ease-in-out;
 }
 
-.flood-word {
+#opening-canvas {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.flood-box {
     position: absolute;
-    color: #fff;
+
+    background-color: #ffffff;
+    color: #000000;
+    outline: 4px solid #ff0000;
+
+    padding: 0.1em 0.4em;
+
     font-family: 'Pretendard', sans-serif;
     font-weight: 900;
+
     white-space: nowrap;
     pointer-events: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: 20px 20px 0px rgba(0,0,0,0.5);
+
+    /* 👉 초기 상태 */
     opacity: 0;
-    /* 나타나자마자 바로 사라지기 전까지 유지되는 짧은 애니메이션 */
-    animation: flash 0.1s forwards;
+
+    /* 👉 등장 애니메이션 */
+    animation: popIn 0.08s forwards;
+
+    /* 👉 사라질 때 적용 */
+    transition: opacity 0.2s ease-out;
 }
 
-@keyframes flash {
-    0% { opacity: 0; transform: scale(0.5); }
-    100% { opacity: 1; transform: scale(1); }
+@keyframes popIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* 폰트가 박스를 뚫고 나가지 않도록 조정 */
+.flood-box span {
+    display: block;
+    line-height: 1;
 }

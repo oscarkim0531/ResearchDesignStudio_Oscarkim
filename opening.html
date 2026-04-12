@@ -9,32 +9,86 @@
 
     <script>
         const canvas = document.getElementById('opening-canvas');
-        const phrases = ["CANCELLATION", "VOID", "TERMS", "REQUIRED", "PENALTY"]; // 폭사할 단어들
+        // 해지약관 빈출 및 핵심 단어 30개
+        const phrases = [
+            "해지불가", "위약금", "청약철회", "자동결제", "환불제한", 
+            "동의함", "책임제한", "이용약관", "의무사항", "계약해제",
+            "잔여기간", "포기각서", "권리소멸", "부당이득", "손해배상",
+            "강제전환", "사전통지", "효력발생", "준거법", "면책조항",
+            "유료전환", "정기구독", "소급적용", "계약갱신", "철회권",
+            "고지의무", "위반사항", "합의내용", "법적효력", "독소조항"
+        ];
 
         function startOpening() {
             let count = 0;
-            const timer = setInterval(() => {
-                const word = document.createElement('div');
-                word.className = 'flood-word';
-                word.innerText = phrases[Math.floor(Math.random() * phrases.length)];
-                
-                // 랜덤 위치 및 크기 설정
-                word.style.left = Math.random() * 100 + 'vw';
-                word.style.top = Math.random() * 100 + 'vh';
-                word.style.fontSize = (Math.random() * 60 + 20) + 'pt';
-                
-                canvas.appendChild(word);
+            const totalWords = 90; 
+
+            const createInterval = 60; 
+            // 👉 단어 생성 간격(ms)
+            // 작을수록 빠르게 채워짐 (30~60 추천)
+
+            const maxRemoveDelay = 600; 
+            // 👉 랜덤 제거 최대 시간
+
+            const fadeDuration = 200; 
+            // 👉 opacity transition 시간과 맞춰야 자연스러움
+
+            // 1. 생성
+            const attackTimer = setInterval(() => {
+                const wordBox = document.createElement('div');
+                wordBox.className = 'flood-box';
+
+                const innerText = document.createElement('span');
+                innerText.innerText = phrases[Math.floor(Math.random() * phrases.length)];
+                wordBox.appendChild(innerText);
+
+                wordBox.style.left = Math.random() * 100 + 'vw';
+                wordBox.style.top = Math.random() * 100 + 'vh';
+
+                wordBox.style.fontSize = (Math.random() * 60 + 40) + 'pt';
+
+                wordBox.style.transform =
+                    `translate(-50%, -50%) rotate(${Math.random() * 20 - 10}deg)`;
+
+                canvas.appendChild(wordBox);
                 count++;
 
-                if (count > 300) { // 300개 생성 후 정지
-                    clearInterval(timer);
+                if (count >= totalWords) {
+                    clearInterval(attackTimer);
+
+                    const allBoxes = document.querySelectorAll('.flood-box');
+
+                    // 2. 제거
+                    allBoxes.forEach((box) => {
+
+                        const randomDelay = Math.random() * 600; 
+                        // 👉 각 단어가 사라지는 랜덤 타이밍 (0~600ms)
+                        // 값이 클수록 더 퍼진 느낌
+
+                        setTimeout(() => {
+                            box.style.opacity = '0';
+
+                            // 👉 scale 제거 (집단 축소 문제 해결)
+                            // 필요하면 아래처럼 랜덤 scale 가능
+                            // box.style.transform += ` scale(${Math.random() * 0.3 + 0.7})`;
+
+                        }, randomDelay);
+                    });
+
+                    // 3. 전체 화면 fade out
                     setTimeout(() => {
-                        // index.html(부모)에 종료 신호 전송
-                        window.parent.postMessage('opening-finished', '*');
-                    }, 800); 
+                        document.body.style.opacity = '0';
+
+                        setTimeout(() => {
+                            window.parent.postMessage('opening-finished', '*');
+                        }, 500);
+
+                    }, 900); 
+                    // 👉 랜덤 제거 최대값(600) + 여유시간
                 }
-            }, 5); // 0.005초 간격
+            }, createInterval);
         }
+
         window.onload = startOpening;
     </script>
 </body>
