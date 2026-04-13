@@ -85,10 +85,24 @@
             }
         }
 
-        // 1. 오프닝 종료 이벤트 수신
-        window.addEventListener('message', (e) => {
-            if (e.data === 'opening-finished') {
-                showSection('trace'); // 오프닝 후 TRACE 모드를 기본으로 시작
+        window.addEventListener('message', (event) => {
+            // 1. 오프닝 종료 신호 처리
+            if (event.data === 'opening-finished') {
+                // 'sections' 객체를 사용하여 접근 (오류 방지)
+                sections.opening.classList.add('hidden');
+                sections.trace.classList.remove('hidden');
+
+                // 내비게이션 버튼 상태 업데이트
+                buttons.trace.classList.add('active');
+
+                // trace-system에게 시작 신호 전송
+                const traceFrame = document.getElementById('trace-frame').contentWindow;
+                traceFrame.postMessage('start-trace', '*');
+            }
+
+            // 2. 아카이브 이동 신호 처리 (팝업 클릭 시)
+            if (event.data === 'go-to-archive') {
+                showSection('archive');
             }
         });
 

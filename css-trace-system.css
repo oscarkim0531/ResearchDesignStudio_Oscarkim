@@ -41,7 +41,7 @@ body, html {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 3; /* 버튼보다는 위, 단어 블록보다는 아래 */
+    z-index: 1; /* 버튼보다는 위, 단어 블록보다는 아래 */
     pointer-events: none;
 }
 
@@ -56,7 +56,7 @@ body, html {
     font-weight: 900;
     text-transform: uppercase;
     box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
-    z-index: 1; /* 단어 블록에 가려지도록 가장 낮은 값 설정 */
+    z-index: 3; /* 단어 블록에 가려지도록 가장 낮은 값 설정 */
     cursor: default;
     white-space: nowrap;
     transition: box-shadow 0.3s, background-color 0.3s;
@@ -106,4 +106,65 @@ body, html {
         opacity: 1;
         transform: translate(-50%, -50%) scale(1);
     }
+}
+
+
+/* 팝업 전체 배경 (Dim 처리) */
+#custom-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9); /* 배경 어둡게 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* 모든 단어 블록(10)보다 높게 설정 */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+/* 팝업 활성화 상태 */
+#custom-modal.modal-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#custom-modal.modal-hidden {
+    display: none;
+}
+
+/* 팝업 박스 디자인 */
+.modal-content {
+    background-color: #ffffff;
+    padding: 40px;
+    border: 4px solid #ff0000;
+    text-align: center;
+    box-shadow: 20px 20px 0px rgba(255, 0, 0, 0.3);
+}
+
+.modal-content p {
+    color: #000;
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+/* 팝업 내 버튼 */
+#modal-confirm-btn {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#modal-confirm-btn:hover {
+    background-color: #ff0000;
 }
