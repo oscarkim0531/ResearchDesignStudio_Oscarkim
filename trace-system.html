@@ -64,6 +64,9 @@
         const container = document.getElementById('word-container');
         const button = document.getElementById('evasive-button');
         const lineCanvas = document.getElementById('line-canvas');
+        const lerpFactor = 0.1; // 👉 값이 작을수록 더 부드럽고 끈적하게 따라옵니다 (0.05~0.15 추천)
+        const minDistance = 15; // 👉 마우스가 최소 15px은 움직여야 단어가 생성됨 (중첩 방지)
+    
         
         let mouseX = window.innerWidth / 2;
         let mouseY = window.innerHeight / 2;
@@ -72,6 +75,10 @@
         let isClickable = false;
         let isSystemStarted = false; // 👉 시스템 시작 여부를 체크하는 스위치
         let creationTimer = null;    // 👉 타이머를 제어하기 위한 변수
+        let currentBtnX = window.innerWidth / 2;
+        let currentBtnY = window.innerHeight / 2;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
 
         // 기존 스크립트 하단에 추가
         window.addEventListener('message', (e) => {
@@ -100,6 +107,22 @@
         }
 
         function createWordAndLine() {
+
+            // 1. 마우스 이동 거리 계산 (피타고라스 정리)
+            const dist = Math.sqrt(Math.pow(mouseX - lastMouseX, 2) + Math.pow(mouseY - lastMouseY, 2));
+
+            // 2. 너무 조금 움직였다면 생성하지 않고 리턴
+            if (dist < minDistance) return;
+
+            // 3. 위치 업데이트
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+
+            // 4. 단어 블록 생성 (미세한 랜덤 오프셋 추가)
+            // 겹침을 방지하고 조형적인 리듬감을 줌
+            const offsetX = (Math.random() * 20 - 10); // ±10px
+            const offsetY = (Math.random() * 20 - 10); // ±10px
+
             // 1. 현재 문장에서 단어 추출
             const currentFullSentence = chosenSentences[sentenceIndex];
             const wordsInSentence = currentFullSentence.split(' ');
@@ -122,6 +145,7 @@
             line.setAttribute("opacity", lineOpacity);
             
             lineCanvas.appendChild(line);
+            linesBuffer.push({ element: line, originX: mouseX + offsetX, originY: mouseY + offsetY });
             
             // 👉 생성된 선 객체와 단어의 고정 좌표를 배열에 저장
             linesBuffer.push({
@@ -142,26 +166,30 @@
         function updateButton() {
             buttonAngle += rotationSpeed;
 
+            // 1. 이론적인 목표 위치 계산
             let targetX = mouseX + Math.cos(buttonAngle) * currentRadius;
             let targetY = mouseY + Math.sin(buttonAngle) * currentRadius;
 
-            // 화면 끝 충돌 방지 로직
-            const margin = 60;
+            // 2. 화면 경계 처리 (Bounce & Slide)
+            // 단순히 고정하는 게 아니라, 마진 안쪽으로 타겟을 밀어넣음
+            const margin = 80;
             const btnWidth = button.offsetWidth;
             const btnHeight = button.offsetHeight;
 
-            if (targetX < margin) targetX = margin;
-            if (targetX > window.innerWidth - btnWidth - margin) targetX = window.innerWidth - btnWidth - margin;
-            if (targetY < margin) targetY = margin;
-            if (targetY > window.innerHeight - btnHeight - margin) targetY = window.innerHeight - btnHeight - margin;
+            targetX = Math.max(margin, Math.min(targetX, window.innerWidth - btnWidth - margin));
+            targetY = Math.max(margin, Math.min(targetY, window.innerHeight - btnHeight - margin));
 
-            button.style.left = `${targetX}px`;
-            button.style.top = `${targetY}px`;
+            // 3. 실제 위치로 부드럽게 이동 (Lerp 로직)
+            // 현재 위치 = 현재 위치 + (목표 - 현재) * 속도
+            currentBtnX += (targetX - currentBtnX) * lerpFactor;
+            currentBtnY += (targetY - currentBtnY) * lerpFactor;
 
-            // 👉 추가된 로직: 모든 선이 움직이는 버튼의 중앙을 따라오게 함
-            const btnRect = button.getBoundingClientRect();
-            const btnCenterX = btnRect.left + btnRect.width / 2;
-            const btnCenterY = btnRect.top + btnRect.height / 2;
+            button.style.left = `${currentBtnX}px`;
+            button.style.top = `${currentBtnY}px`;
+
+            // 4. 선(Line) 업데이트 (현재 부드러워진 버튼 위치 기준)
+            const btnCenterX = currentBtnX + btnWidth / 2;
+            const btnCenterY = currentBtnY + btnHeight / 2;
 
             linesBuffer.forEach(lineObj => {
                 lineObj.element.setAttribute("x2", btnCenterX);
