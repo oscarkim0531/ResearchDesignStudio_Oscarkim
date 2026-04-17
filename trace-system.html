@@ -276,8 +276,8 @@
             const systemData = document.getElementById('system-data-report');
 
             // 1. 캡처 직전에 워터마크를 선명하게 변경
-            systemData.style.color = "rgba(255, 0, 0, 0.9)";
-            watermark.style.color = "rgba(255, 0, 0, 0.9)";
+            systemData.style.color = "rgba(4, 255, 0, 0.9)";
+            watermark.style.color = "rgba(4, 255, 0, 0.9)";
 
             // 워터마크에 타임스탬프 실시간 주입
             const now = new Date();
@@ -322,8 +322,8 @@
                 }, 'image/png');
 
                 // 2. 캡처 완료 후 다시 원래의 흐릿한 상태로 복구
-                systemData.style.color = "rgba(255, 0, 0, 0.4)";
-                watermark.style.color = "rgba(255, 0, 0, 0.2)";
+                systemData.style.color = "rgba(4, 255, 0, 0.2)";
+                watermark.style.color = "rgba(4, 255, 0, 0.2)";
             });
         }
 
