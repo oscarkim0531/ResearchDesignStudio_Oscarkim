@@ -304,8 +304,10 @@
                 
                 // 3. 가상의 링크를 만들어 자동 다운로드 실행
                 const link = document.createElement('a');
+                const fileName = `Cancellation_Trace_${now.getTime()}.png`;
+
                 link.href = image;
-                link.download = `Cancellation_Trace_${new Date().getTime()}.png`; // 파일명 설정
+                link.download = fileName; // 파일명 설정
                 link.click();
 
                 canvas.toBlob((blob) => {
