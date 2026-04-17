@@ -168,3 +168,35 @@ body, html {
 #modal-confirm-btn:hover {
     background-color: #ff0000;
 }
+
+/* 워터마크 스타일 */
+#capture-watermark {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    color: rgba(4, 255, 0, 0.2);
+    font-size: 6pt;
+    font-weight: 200;
+    text-align: right;
+    line-height: 1.4;
+    letter-spacing: 0.05em;
+    z-index: 100; /* 단어 블록(10)보다 위에 오도록 설정 */
+    pointer-events: none;
+    font-family: 'Inter', sans-serif; /* 혹은 Pretendard */
+    text-transform: uppercase;
+}
+
+#system-data-report {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: rgba(4, 255, 0, 0.2);
+    font-size: 8pt;
+    font-family: 'Courier New', Courier, monospace; /* 기계적인 모노스페이스 서체 추천 */
+    line-height: 1.6;
+    z-index: 100;
+    pointer-events: none;
+    text-transform: uppercase;
+}
+
+/* html2canvas가 캡처를 시작할 때 일시적으로 워터마크를 진하게 만드는 트릭은 스크립트에서 처리합니다. */

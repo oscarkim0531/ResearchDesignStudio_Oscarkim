@@ -18,7 +18,7 @@
             <h1 class="logo">CANCELLATION TERMS</h1>
             <div class="mode-switch">
                 <button id="btn-trace">TRACE</button>
-                <button id="btn-loop">LOOP</button>
+                <!-- <button id="btn-loop">LOOP</button> -->
                 <button id="btn-archive">ARCHIVE</button>
             </div>
         </div>
@@ -36,9 +36,9 @@
             <iframe src="./trace-system.html" id="trace-frame" frameborder="0"></iframe>
         </section>
 
-        <section id="section-loop" class="content-section hidden">
+        <!-- <section id="section-loop" class="content-section hidden">
             <iframe src="./endless-loop.html" id="loop-frame" frameborder="0"></iframe>
-        </section>
+        </section> -->
 
         <section id="section-archive" class="content-section hidden">
             <iframe src="./archive.html" id="archive-frame" frameborder="0"></iframe>
@@ -58,13 +58,13 @@
         const sections = {
             opening: document.getElementById('section-opening'),
             trace: document.getElementById('section-trace'),
-            loop: document.getElementById('section-loop'),
+            // loop: document.getElementById('section-loop'),
             archive: document.getElementById('section-archive')
         };
 
         const buttons = {
             trace: document.getElementById('btn-trace'),
-            loop: document.getElementById('btn-loop'),
+            // loop: document.getElementById('btn-loop'),
             archive: document.getElementById('btn-archive')
         };
 
@@ -108,7 +108,7 @@
 
         // 2. 버튼 클릭 이벤트 연결
         buttons.trace.onclick = () => showSection('trace');
-        buttons.loop.onclick = () => showSection('loop');
+        // buttons.loop.onclick = () => showSection('loop');
         buttons.archive.onclick = () => showSection('archive');
 
         // About 모달 로직 (기존과 동일)
