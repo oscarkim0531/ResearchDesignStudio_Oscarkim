@@ -121,9 +121,20 @@
         // 기존 스크립트 하단에 추가
         window.addEventListener('message', (e) => {
             if (e.data === 'start-trace') {
-                runTraceSystem(); // 👈 여기서 시스템을 깨워줍니다.
+                // 신호를 받으면 수치들을 초기 상태로 셋팅
+                currentRadius = initialRadius; 
+                isClickable = false;
+                button.classList.remove('clickable');
+                button.onclick = null;
+                
+                runTraceSystem(); // 시스템 시작
             }
         });
+
+        window.onload = () => {
+            // 로드되자마자 실행하지 않고, 버튼 위치만 중앙에 잡아둡니다.
+            updateButton(); 
+        };
 
         // 마우스 이동 감지
         window.addEventListener('mousemove', (e) => {
@@ -131,20 +142,38 @@
             mouseY = e.clientY;
         });
 
-        // 기존의 setInterval(() => { ... }, createInterval); 부분을 아래 함수로 대체
         function runTraceSystem() {
-            if (isSystemStarted) return; // 이미 시작되었다면 중복 실행 방지
+            if (isSystemStarted) return;
             isSystemStarted = true;
 
-            // 새로운 추적을 위해 이전 데이터 초기화
             fullTraceText = "";
             localStorage.removeItem('userTraceData');
+            startTime = null;
 
-            // 0.5초(500ms) 동안 검은 화면과 버튼만 보여준 뒤 단어 생성 시작
+            // 0.5초 정적 후 단어 생성 시작
             setTimeout(() => {
                 creationTimer = setInterval(() => {
                     createWordAndLine();
                 }, createInterval);
+
+                // [핵심 추가] 가이드가 끝난 시점부터 버튼이 서서히 다가오게 함
+                const shrinkEffect = setInterval(() => {
+                    if (currentRadius > 5) {
+                        currentRadius -= 2;
+                    } else {
+                        clearInterval(shrinkEffect);
+                        isClickable = true;
+                        button.classList.add('clickable');
+                        button.onclick = () => {
+                            captureAndDownload();
+                            setTimeout(() => {
+                                const modal = document.getElementById('custom-modal');
+                                modal.classList.remove('modal-hidden');
+                                modal.classList.add('modal-visible');
+                            }, 100);
+                        };
+                    }
+                }, 100);
             }, 500);
         }
 

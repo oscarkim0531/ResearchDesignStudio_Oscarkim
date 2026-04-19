@@ -38,8 +38,8 @@ body, html {
     top: 50%;
     transform: translateY(100px); /* 아래에서 대기 */
     opacity: 0;
-    font-size: 24pt;
-    font-weight: 300;
+    font-size: 18pt;
+    font-weight: 500;
     line-height: 1.6;
     letter-spacing: -0.02em;
     transition: all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -49,7 +49,7 @@ body, html {
 /* 문장 내 강조 (날짜/시간 등) */
 .message-item span {
     font-weight: 700;
-    color: #04ff00; /* 시스템 컬러인 초록색 포인트 */
+    color: #ff0000; /* 시스템 컬러인 초록색 포인트 */
     text-decoration: underline;
 }
 
@@ -57,7 +57,7 @@ body, html {
 .message-item.active {
     opacity: 1;
     transform: translateY(-50%);
-    animation: fadeOutUp 1.5s ease-in forwards 3s; /* 3초 머문 후 위로 사라짐 */
+    animation: fadeOutUp 1.5s ease-in forwards 3.5s; /* 3초 머문 후 위로 사라짐 */
 }
 
 @keyframes fadeOutUp {
@@ -95,9 +95,9 @@ body, html {
 }
 
 #final-choice-area button:hover {
-    border-color: #04ff00;
-    color: #04ff00;
-    background-color: rgba(4, 255, 0, 0.05);
+    border-color: #ff0000;
+    color: #ff0000;
+    background-color: rgba(255, 0, 0, 0.05);
 }
 
 /* 4. 복기하기 오버레이 (Recall Mode) */
@@ -122,7 +122,7 @@ body, html {
 
 .recall-content h2 {
     font-size: 10pt;
-    color: #04ff00;
+    color: #ff0000;
     letter-spacing: 0.3em;
     margin-bottom: 20px;
     text-align: center;

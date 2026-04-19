@@ -13,7 +13,7 @@
                 귀하는 <span id="current-time-display"></span>에 <br>상기 해지 약관을 모두 읽고 동의하셨습니다.
             </div>
             <div class="message-item" id="msg-2">
-                버튼의 궤적을 쫓는 동안, <br>귀하가 외면한 약관들은 이미 시스템에 기록되었습니다.
+                당신이 버튼을 쫓는 데 몰입하는 동안, <br>무시된 약관들은 모두 승인 처리되었습니다.
             </div>
             <div class="message-item" id="msg-3">
                 당신은 정말 해지 약관을 인지하고 동의하신 건가요, <br>아니면 그저 버튼만 쫓았던 건가요?
@@ -22,12 +22,12 @@
 
         <div id="final-choice-area" class="hidden">
             <button id="btn-recall">해지 약관 복기하기</button>
-            <button id="btn-go-archive">아카이브 진입하기</button>
+            <button id="btn-go-archive">아카이브 보기</button>
         </div>
 
         <div id="recall-overlay" class="hidden">
             <div class="recall-content">
-                <h2>CANCELLATION TERMS: RECALL</h2>
+                <h2>CANCELLATION TERMS</h2>
                 <hr>
                 <p id="trace-sentence-result"></p>
                 <hr>
@@ -72,7 +72,7 @@
                     msg.classList.add('active'); // CSS에서 정의할 애니메이션 트리거
                 }, delay);
                 
-                delay += 4000; // 문장 하나가 머무는 시간
+                delay += 4500; // 문장 하나가 머무는 시간
 
                 // 마지막 문장인 경우 선택지 버튼 등장
                 if (index === messages.length - 1) {
