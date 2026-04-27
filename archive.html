@@ -2,47 +2,54 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive of Termination Terms</title>
     <link rel="stylesheet" href="./style-archive.css">
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="grid">
-        <p class="loading">Loading Archive Data...</p>
-    </div>
+    <main id="archive-canvas">
+        <div id="brand-cloud">
+            <p class="loading-status">SCANNING SERVICES...</p>
+        </div>
+    </main>
 
     <script>
         const SPREADSHEET_ID = "1VzerbOerqPiRTUyM7YSOhHmLmkvMyhdFJ77gH2Xyqeg";
         const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv`;
 
         const KEYS = {
-            serviceName:      "Service Name",
-            mediaType:        "Media Type",
-            ownershipType:    "Ownership Type",
-            category:         "Category",
-            launchDate:       "Launch Date",
-            region:           "Region",
-            targetAudience:   "Target Audience",
-            marketShare:      "Market Share",
-            billingCycle:     "Billing Cycle",
-            cancellationFeatures: "Cancellation Features",
-            difficulty:       "Difficulty",
-            fullTerms:        "Full Terms",
-            sourceUrl:        "Source URL",
-            fontFamily:       "Font Family",
-            fontSize:         "Font Size",
-            leading:          "Leading",
-            tracking:         "Tracking",
-            backgroundColor:  "Background Color",
-            textColor:        "Text Color",
-            notes:            "Notes"
+            serviceName: "Service Name",
+            difficulty: "Difficulty",
+            fullTerms: "Full Terms",
+            sourceUrl: "Source URL",
+            category: "Category",
+            mediaType: "Media Type",
+            ownershipType: "Ownership Type",
+            launchDate: "Launch Date",
+            region: "Region",
+            targetAudience: "Target Audience",
+            marketShare: "Market Share",
+            billingCycle: "Billing Cycle",
+            pricing: "Pricing (Monthly)"
         };
+
+        async function loadArchive() {
+            try {
+                const response = await fetch(CSV_URL);
+                const text = await response.text();
+                const rows = parseCSV(text);
+                renderBrandCloud(rows);
+            } catch (error) {
+                console.error("Data Load Error:", error);
+            }
+        }
 
         function parseCSV(text) {
             const rows = [];
             let currentLine = "";
             let inQuotes = false;
-
-            // 1. 셀 안의 엔터와 행 끝의 엔터를 구분하여 분리
             for (let i = 0; i < text.length; i++) {
                 const char = text[i];
                 if (char === '"') inQuotes = !inQuotes;
@@ -54,16 +61,11 @@
                 }
             }
             if (currentLine) rows.push(currentLine);
-
-            // 2. 헤더 추출
             const headers = splitCSVLine(rows[0]).map(h => h.trim().replace(/"/g, ''));
-            
-            // 3. 데이터 매핑
             return rows.slice(1).map(line => {
                 const values = splitCSVLine(line);
                 const obj = {};
                 headers.forEach((h, i) => {
-                    // 헤더 이름과 일치하는 데이터 매칭
                     obj[h] = (values[i] || "").trim().replace(/"/g, '');
                 });
                 return obj;
@@ -88,72 +90,99 @@
             return result;
         }
 
-        // 3. 데이터 패치 및 카드 생성
-        fetch(CSV_URL)
-            .then(res => res.text())
-            .then(text => {
-                const rows = parseCSV(text);
-                const grid = document.getElementById("grid");
-                grid.innerHTML = "";
+        function renderBrandCloud(rows) {
+            const cloud = document.getElementById("brand-cloud");
+            cloud.innerHTML = "";
 
-                rows.forEach(row => {
-                    if (!row[KEYS.serviceName]) return;
+            const shuffledRows = rows.filter(r => r[KEYS.serviceName]).sort(() => Math.random() - 0.5);
 
-                    const card = document.createElement("div");
-                    card.className = "card";
+            shuffledRows.forEach(row => {
+                const brandWrapper = document.createElement("div");
+                const difficulty = row[KEYS.difficulty];
+                
+                brandWrapper.className = `brand-item diff-${difficulty}`;
+                
+                // 난이도에 따른 폰트 사이즈 클래스 (CSS에서 정의)
+                let sizeLevel = "small";
+                if (difficulty === "어려움") sizeLevel = "large";
+                else if (difficulty === "보통") sizeLevel = "medium";
+
+                brandWrapper.innerHTML = `
+                    <div class="name-container">
+                        <span class="brand-name size-${sizeLevel}">${row[KEYS.serviceName]}</span>
+                        <div class="hover-popup">
+                            <button class="popup-btn archive-btn" onclick="openDetailModal('${encodeURIComponent(JSON.stringify(row))}')">ARCHIVE</button>
+                            <a href="${row[KEYS.sourceUrl]}" target="_blank" class="popup-btn source-link">SOURCE ↗</a>
+                        </div>
+                    </div>
+                `;
+
+                cloud.appendChild(brandWrapper);
+            });
+        }
+
+        function openDetailModal(encodedRow) {
+            const row = JSON.parse(decodeURIComponent(encodedRow));
+            const modal = document.createElement("div");
+            modal.className = "modal-overlay";
+            
+            modal.innerHTML = `
+                <div class="modal-window">
+                    <div class="modal-header">
+                        <div class="modal-meta"></div>
+                        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button>
+                    </div>
                     
-                    // 카드에는 핵심 정보(이름, 카테고리, 난이도, 요약)만 노출
-                    card.innerHTML = `
-                        <div class="card-content">
-                            <div class="card-meta">
-                                <span class="category">${row[KEYS.category]}</span>
-                                <span class="difficulty ${row[KEYS.difficulty]}">${row[KEYS.difficulty]}</span>
+                    <div class="modal-content">
+                        <div class="content-left">
+                            <h1 class="modal-title">${row[KEYS.serviceName]}</h1>
+
+                            <div class="difficulty-hero status-${row[KEYS.difficulty]}">
+                                <span class="diff-label">TERMINATION DIFFICULTY</span>
+                                <span class="diff-value">${row[KEYS.difficulty]}</span>
                             </div>
-                            <h2 class="service-name">${row[KEYS.serviceName]}</h2>
-                            <p class="features">${row[KEYS.cancellationFeatures]}</p>
-                            <div class="card-footer">
-                                <span>${row[KEYS.mediaType]}</span>
-                                <span>${row[KEYS.billingCycle]}</span>
+                            
+                            <div class="data-table">
+                                <div class="data-row"><span class="label">Category</span><span class="value">${row[KEYS.category]}</span></div>
+                                <div class="data-row"><span class="label">Media Type</span><span class="value">${row[KEYS.mediaType]}</span></div>
+                                <div class="data-row"><span class="label">Ownership</span><span class="value">${row[KEYS.ownershipType]}</span></div>
+                                <div class="data-row"><span class="label">Launch Date</span><span class="value">${row[KEYS.launchDate]}</span></div>
+                                <div class="data-row"><span class="label">Region</span><span class="value">${row[KEYS.region]}</span></div>
+                                <div class="data-row"><span class="label">Target</span><span class="value">${row[KEYS.targetAudience]}</span></div>
+                                <div class="data-row"><span class="label">Market Share</span><span class="value">${row[KEYS.marketShare]}</span></div>
+                                <div class="data-row"><span class="label">Billing Cycle</span><span class="value">${row[KEYS.billingCycle]}</span></div>
+                                <div class="data-row"><span class="label">Pricing</span><span class="value">${row[KEYS.pricing]}</span></div>
+                                <div class="data-row"><span class="label">Difficulty</span><span class="value">${row[KEYS.difficulty]}</span></div>
+                            </div>
+
+                            <div class="source-box">
+                                <span class="box-label">SOURCE AUTHENTICATION</span>
+                                <a href="${row[KEYS.sourceUrl]}" target="_blank" class="main-source-link">ACCESS ORIGINAL DOCUMENT ↗</a>
                             </div>
                         </div>
-                    `;
 
-                    // 클릭 시 팝업 띄우기 (Cyberfeminism Index 스타일)
-                    card.onclick = () => openDetailModal(row);
-                    grid.appendChild(card);
-                });
-            });
-
-        // 4. 상세 팝업 함수 (모든 시트 정보 노출)
-        function openDetailModal(row) {
-            // 부모창(index.html)의 모달 시스템을 사용하거나 archive.html 내부에 모달을 만듭니다.
-            // 여기서는 간단하게 전용 상세 창을 생성하는 로직을 제안합니다.
-            const modal = document.createElement("div");
-            modal.className = "detail-modal";
-            modal.innerHTML = `
-                <div class="modal-inner">
-                    <button class="close-modal">CLOSE [X]</button>
-                    <div class="modal-scroll">
-                        <h1>${row[KEYS.serviceName]}</h1>
-                        <table class="detail-table">
-                            <tr><th>Category</th><td>${row[KEYS.category]}</td></tr>
-                            <tr><th>Media Type</th><td>${row[KEYS.mediaType]}</td></tr>
-                            <tr><th>Ownership</th><td>${row[KEYS.ownershipType]}</td></tr>
-                            <tr><th>Market Share</th><td>${row[KEYS.marketShare]}</td></tr>
-                            <tr><th>Difficulty</th><td>${row[KEYS.difficulty]}</td></tr>
-                            <tr><th>Notes</th><td>${row[KEYS.notes]}</td></tr>
-                        </table>
-                        <div class="terms-section">
-                            <h3>FULL CANCELLATION TERMS</h3>
-                            <p class="terms-body">${row[KEYS.fullTerms]}</p>
-                            <a href="${row[KEYS.sourceUrl]}" target="_blank" class="source-link">Original Source ↗</a>
+                        <div class="content-right">
+                            <div class="terms-viewer">
+                                <div class="viewer-header">FULL TERMS DOCUMENTATION</div>
+                                <div class="terms-text">${row[KEYS.fullTerms]}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             `;
             document.body.appendChild(modal);
-            modal.querySelector('.close-modal').onclick = () => modal.remove();
+
+            // ESC 키로 닫기 이벤트 추가
+            const escListener = (e) => {
+                if (e.key === 'Escape') {
+                    modal.remove();
+                    document.removeEventListener('keydown', escListener);
+                }
+            };
+            document.addEventListener('keydown', escListener);
         }
+
+        window.onload = loadArchive;
     </script>
 </body>
 </html>

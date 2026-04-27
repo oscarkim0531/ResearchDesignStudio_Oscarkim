@@ -100,14 +100,13 @@
                     showSection('trace');
                     const traceFrame = document.getElementById('trace-frame').contentWindow;
                     traceFrame.postMessage('start-trace', '*');
-                }, 1500); // 👈 승민 님이 제안한 1.5초 Empty Space
+                }, 1500);
             }, delay);
         }
 
         // 2. 메시지 수신 로직
         window.addEventListener('message', (event) => {
             if (event.data === 'opening-finished') {
-                // 오프닝 끝나면 바로 트레이스로 가는 게 아니라 가이드를 먼저 실행
                 runSystemGuide(); 
             }
             if (event.data === 'go-to-text') {
@@ -119,7 +118,6 @@
             }
         });
 
-        // 메뉴에 실제로 존재하는 ID들만 남깁니다.
         const buttons = {
             trace: document.getElementById('btn-trace'),
             archive: document.getElementById('btn-archive')

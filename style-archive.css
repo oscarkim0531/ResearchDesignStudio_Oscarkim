@@ -1,6 +1,20 @@
 /* ---------------------------------------------------------
-   1. Global Setup & Reset
+   1. Design System & Base (강의자료 수직 리듬 반영)
 --------------------------------------------------------- */
+:root {
+    --bg-color: #050505;       /* 극도의 대비를 위한 딥 블랙 */
+    --text-main: #ffffff;
+    --text-dim: #444444;
+    --accent-red: #ff3b30;
+    --accent-yellow: #ffcc00;
+    --accent-green: #34c759;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-sans: 'Pretendard', sans-serif;
+    
+    /* 8px 배수 시스템 */
+    --base-unit: 8px;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -8,260 +22,290 @@
 }
 
 body {
-    background-color: #000;
-    color: #fff;
-    font-family: 'Pretendard', 'Inter', sans-serif;
-    line-height: 1.5;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
 }
 
 /* ---------------------------------------------------------
-   2. Archive Grid (KADIS Style Layout)
+   2. Header (Linear Text Layout)
 --------------------------------------------------------- */
-#grid {
-    display: grid;
-    /* 화면 너비에 따라 카드가 유연하게 배치됨 */
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-    gap: 1px; /* 카드 사이의 얇은 구분선 효과 */
-    background-color: #222; /* 구분선 색상 */
-    border-top: 1px solid #222;
+#archive-header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: calc(var(--base-unit) * 3) calc(var(--base-unit) * 4);
+    border-bottom: 1px solid #1a1a1a;
+    background: rgba(5, 5, 5, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
 }
 
 /* ---------------------------------------------------------
-   3. Card Component
+   3. Brand Cloud (The Landscape)
 --------------------------------------------------------- */
-.card {
-    background-color: #000;
-    padding: 2.5rem;
+#archive-canvas {
+    padding: calc(var(--base-unit) * 12) calc(var(--base-unit) * 4);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+}
+
+#brand-cloud {
+    max-width: 1500px;
+    display: flex;
+    flex-wrap: wrap; /* 글자들이 자연스럽게 흐르도록 설정 */
+    gap: calc(var(--base-unit) * 4) calc(var(--base-unit) * 8);
+    align-items: baseline;
+    justify-content: center;
+    align-content: center;
+    margin: 0 auto;
+}
+
+/* ---------------------------------------------------------
+   4. Brand Item & Hover Interaction
+--------------------------------------------------------- */
+.brand-item {
+    position: relative;
+    cursor: crosshair;
+}
+
+.name-container {
+    position: relative;
+}
+
+.brand-name {
+    display: inline-block;
+    font-weight: 600;
+    line-height: 0.85;
+    letter-spacing: -0.08em;
+    transition: color 0.3s ease, opacity 0.3s ease;
+    white-space: nowrap;
+}
+
+/* 난이도별 글자 크기 (Display Text의 시각적 부피) */
+.size-large { font-size: 5rem; line-height: 0.9; letter-spacing: -0.07em; color: #fff; }
+.size-medium { font-size: 2.2rem; line-height: 1; color: #bbb; }
+.size-small { font-size: 1.1rem; color: #888; }
+
+#archive-canvas {
+    padding: calc(var(--base-unit) * 8) 20px; /* 상하 여백 축소 */
+    align-items: center; /* 중앙 정렬로 밀집도 향상 */
+}
+
+/* 호버 시 다른 글자들은 흐려지며 시스템 감도 강조 */
+#brand-cloud:hover .brand-item:not(:hover) {
+    opacity: 0.4;
+}
+
+/* ---------------------------------------------------------
+   5. Floating Hover Popup (예리한 인터페이스)
+--------------------------------------------------------- */
+.hover-popup {
+    position: absolute;
+    bottom: 100%; /* 이름 위로 등장 */
+    left: 50%;
+    transform: translate(-50%, -20px);
+    display: flex;
+    gap: 1px;
+    background: var(--text-main);
+    padding: 2px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s cubic-bezier(0.2, 1, 0.2, 1);
+    z-index: 50;
+}
+
+.brand-item:hover .hover-popup {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -10px);
+}
+
+.popup-btn {
+    background: var(--bg-color);
+    color: var(--text-main);
+    border: none;
+    padding: 8px 16px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
     cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.popup-btn:hover {
+    background: var(--accent-red);
+    color: #fff;
+}
+
+/* ---------------------------------------------------------
+   6. Modal System (강의자료 Reference Text 조판 적용)
+--------------------------------------------------------- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.95);
+    z-index: 1000;
+    display: flex;
+    padding: calc(var(--base-unit) * 4);
+}
+
+.modal-window {
+    width: 100%;
+    max-width: 1600px;
+    margin: auto;
+    background: #000;
+    border: 1px solid #222;
+    height: 90vh;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    min-height: 380px;
-    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-    position: relative;
+}
+
+.modal-header {
+    padding: calc(var(--base-unit) * 3);
     border-bottom: 1px solid #222;
-}
-
-.card:hover {
-    background-color: #080808;
-    padding-left: 3rem; /* 사이버페미니즘 인덱스 특유의 인터랙션 */
-}
-
-/* 카드 상단 메타 정보 (Category & Difficulty) */
-.card-meta {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 11px;
 }
 
-.category {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-/* 난이도 배지 */
-.difficulty {
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 3px 8px;
-    border: 1px solid currentColor;
-    border-radius: 20px;
-    text-transform: uppercase;
-}
-.difficulty.어려움 { color: #FF3B30; }
-.difficulty.보통 { color: #FFCC00; }
-.difficulty.쉬움 { color: #4CD964; }
-
-/* 서비스 이름 */
-.service-name {
-    font-size: 2.2rem;
-    font-weight: 800;
-    line-height: 1.1;
-    letter-spacing: -0.04em;
-    margin-bottom: 1rem;
-    word-break: keep-all;
-}
-
-/* 해지 약관 특징 (요약) */
-.features {
-    font-size: 1rem;
-    color: #999;
-    line-height: 1.6;
-    margin-bottom: 2rem;
-    /* 3줄까지만 노출 후 생략 */
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    -webkit-box-orient: vertical;
+.modal-content {
+    display: grid;
+    grid-template-columns: 450px 1fr; /* Reference vs Linear */
+    flex: 1;
     overflow: hidden;
 }
 
-/* 카드 하단 푸터 (Media Type & Cycle) */
-.card-footer {
-    margin-top: auto;
-    display: flex;
-    gap: 1rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #444;
-    text-transform: uppercase;
-}
-
-/* ---------------------------------------------------------
-   4. Detail Modal (Cyberfeminism Index Style)
---------------------------------------------------------- */
-.detail-modal {
-    position: fixed;
-    top: 0;
-    right: 0; /* 오른쪽에서 슬라이딩되는 느낌 */
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(5px);
-    z-index: 9999;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.modal-inner {
-    width: 100%;
-    max-width: 700px;
-    height: 100%;
-    background: #000;
-    border-left: 1px solid #333;
-    padding: 4rem 3rem;
-    position: relative;
-    box-shadow: -10px 0 30px rgba(0,0,0,0.5);
-    animation: slideIn 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-
-@keyframes slideIn {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
-}
-
-/* 닫기 버튼 */
-.close-modal {
-    position: absolute;
-    top: 2rem;
-    right: 2.5rem;
-    background: none;
-    border: 1px solid #fff;
-    color: #fff;
-    padding: 0.6rem 1.2rem;
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.close-modal:hover {
-    background: #fff;
-    color: #000;
-}
-
-.modal-scroll {
+.content-left {
+    padding: calc(var(--base-unit) * 8);
+    border-right: 1px solid #222;
     overflow-y: auto;
-    height: 100%;
-    padding-right: 1.5rem;
 }
 
-/* 모달 내부 타이틀 */
-.modal-scroll h1 {
-    font-size: 3.5rem;
+.modal-title {
+    font-size: 3rem;
     font-weight: 800;
-    letter-spacing: -0.05em;
-    margin-bottom: 3rem;
     line-height: 1;
+    margin-bottom: calc(var(--base-unit) * 6);
+    letter-spacing: -0.05em;
 }
 
-/* 모든 시트 정보를 담는 테이블 */
-.detail-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 4rem;
+.data-table {
+    display: block; /* grid 제거 */
+    margin-bottom: calc(var(--base-unit) * 6);
 }
 
-.detail-table tr {
-    border-bottom: 1px solid #222;
+.data-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0; /* 패딩을 늘려 시각적 여유 확보 */
+    border-bottom: 1px solid #1a1a1a;
+    font-size: 12px; /* 11px에서 12px로 상향 */
 }
 
-.detail-table th {
-    padding: 1rem 0;
-    text-align: left;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #555;
-    text-transform: uppercase;
-    width: 180px;
+/* 밸류 값 강조 */
+.data-row .value {
+    color: var(--text-main);
+    text-align: right;
 }
 
-.detail-table td {
-    padding: 1rem 0;
-    font-size: 1rem;
-    color: #fff;
-    font-weight: 400;
+.content-right {
+    padding: calc(var(--base-unit) * 8);
+    overflow-y: auto;
+    background: #030303;
 }
 
-/* 해지 약관 전문 섹션 */
-.terms-section {
-    background: #0a0a0a;
+.terms-text {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #999;
+    white-space: pre-wrap;
+    text-align: justify; /* 강의자료 권장사항: 연속적 읽기 최적화 */
+    max-width: 800px; /* 가독성을 위한 글줄 길이 제한 */
+}
+
+.main-source-link {
+    display: block;
+    margin-top: 10px;
+    color: var(--text-main); /* 흰색으로 변경 */
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    border: 1px solid var(--text-main);
+    padding: 12px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.main-source-link:hover {
+    background: var(--text-main);
+    color: var(--bg-color);
+}
+
+/* 난이도를 최상위 위계로 끌어올리는 스타일 */
+.difficulty-hero {
+    margin-bottom: calc(var(--base-unit) * 6);
+    padding: 20px;
     border: 1px solid #222;
-    padding: 2.5rem;
-    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.terms-section h3 {
-    font-size: 0.8rem;
-    font-weight: 800;
-    color: #444;
-    margin-bottom: 1.5rem;
+.diff-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
     letter-spacing: 0.1em;
 }
 
-.terms-body {
-    font-size: 1rem;
-    line-height: 1.8;
-    color: #bbb;
-    white-space: pre-wrap; /* 시트의 줄바꿈 유지 */
-    text-align: justify;
+.diff-value {
+    font-size: 2.5rem; /* 다른 데이터보다 훨씬 크게 설정 */
+    font-weight: 900;
+    line-height: 1;
 }
 
-/* 원본 링크 */
-.source-link {
-    display: inline-block;
-    margin-top: 2rem;
-    color: #fff;
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 700;
-    border-bottom: 1px solid #fff;
-    padding-bottom: 2px;
+/* 난이도별 강렬한 색상 대비 */
+.difficulty-hero.status-어려움 .diff-value { color: var(--accent-red); }
+.difficulty-hero.status-보통 .diff-value { color: var(--accent-yellow); }
+.difficulty-hero.status-쉬움 .diff-value { color: var(--accent-green); }
+
+/* 기존 데이터 테이블에서 불필요한 강조 제거 */
+.data-table {
+    border-top: 1px solid #222;
+    padding-top: 20px;
 }
 
-.source-link:hover {
-    color: #666;
-    border-color: #666;
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--text-main);
+    font-size: 20px; /* X 표시 강조 */
+    cursor: pointer;
+    padding: 10px;
+    line-height: 1;
 }
 
-/* 스크롤바 커스텀 */
-.modal-scroll::-webkit-scrollbar {
-    width: 4px;
-}
-.modal-scroll::-webkit-scrollbar-track {
-    background: #000;
-}
-.modal-scroll::-webkit-scrollbar-thumb {
-    background: #333;
+.modal-close:hover {
+    color: var(--accent-red);
 }
 
-.terms-body {
-    /* 이 속성이 있어야 불러온 데이터 내의 \n (줄바꿈)이 실제 줄바꿈으로 보입니다. */
-    white-space: pre-wrap; 
-    word-break: break-all; /* 너무 긴 단어가 영역을 넘어가지 않도록 방지 */
-}
+/* 스크롤바 미니멀 디자인 */
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #333; }

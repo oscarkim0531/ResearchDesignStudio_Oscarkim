@@ -11,6 +11,8 @@
 </head>
 <body>
     <div id="interaction-canvas">
+        <div id="interaction-shield"></div>
+
         <div class="system-declaration">
             귀하는 본 고지 사항을 모두 읽었으며, 해지 시 발생하는 모든 불이익을 본인의 책임으로 수용합니다.
         </div>
@@ -91,12 +93,15 @@
         let linesBuffer = []; // 생성된 모든 선(line) 객체를 저장할 배열
         let sentenceIndex = 0;
         let wordIndexInSentence = 0;
+        let totalMoveDist = 0;
         
         const container = document.getElementById('word-container');
         const button = document.getElementById('evasive-button');
         const lineCanvas = document.getElementById('line-canvas');
         const lerpFactor = 0.1; // 👉 값이 작을수록 더 부드럽고 끈적하게 따라옵니다 (0.05~0.15 추천)
         const minDistance = 15; // 👉 마우스가 최소 15px은 움직여야 단어가 생성됨 (중첩 방지)
+        const gridSize = 40;
+        const maxProgressionDist = 5000;
     
         
         let mouseX = window.innerWidth / 2;
@@ -164,7 +169,6 @@
                     createWordAndLine();
                 }, createInterval);
 
-                // [핵심 추가] 가이드가 끝난 시점부터 버튼이 서서히 다가오게 함
                 const shrinkEffect = setInterval(() => {
                     if (currentRadius > 5) {
                         currentRadius -= 2;
@@ -172,6 +176,11 @@
                         clearInterval(shrinkEffect);
                         isClickable = true;
                         button.classList.add('clickable');
+                        
+                        // [추가] 버튼이 활성화되면 인터랙션 쉴드를 제거하여 버튼 클릭이 가능하게 함
+                        const shield = document.getElementById('interaction-shield');
+                        if (shield) shield.style.display = 'none'; 
+
                         button.onclick = () => {
                             captureAndDownload();
                             setTimeout(() => {
@@ -186,94 +195,91 @@
         }
 
         function createWordAndLine() {
-
-            // 1. 시스템 시작 시점 기록
             if (!startTime) startTime = Date.now();
 
             const dist = Math.sqrt(Math.pow(mouseX - lastMouseX, 2) + Math.pow(mouseY - lastMouseY, 2));
+            
+            // 1. 최소 이동 거리 미달 시 리턴 (중복 제거)
             if (dist < minDistance) return;
 
-            // 2. 데이터 누적
+            // 2. 그리드 좌표 계산 (마우스 좌표를 격자점에 스냅)
+            const snappedX = Math.round(mouseX / gridSize) * gridSize;
+            const snappedY = Math.round(mouseY / gridSize) * gridSize;
+
+            // 3. 시각적 점진성 계산 (누적 거리에 기반)
+            totalMoveDist += dist;
+            let progression = Math.min(totalMoveDist / maxProgressionDist, 1);
+            
+            const currentOpacity = 0.1 + (progression * 0.9);
+            const currentStrokeWidth = 0.5 + (progression * 2.5);
+            const currentFontSize = 14 + (progression * 4);
+
+            // 데이터 업데이트 및 UI 반영
             totalDistance += Math.round(dist);
             blockCount++;
             elapsedTime = ((Date.now() - startTime) / 1000).toFixed(1);
 
-            // 3. 화면 업데이트
             document.getElementById('val-distance').innerText = totalDistance.toLocaleString();
             document.getElementById('val-blocks').innerText = blockCount;
             document.getElementById('val-time').innerText = elapsedTime;
 
-
-            // 2. 너무 조금 움직였다면 생성하지 않고 리턴
-            if (dist < minDistance) return;
-
-            // 3. 위치 업데이트
+            // 이전 마우스 위치 업데이트
             lastMouseX = mouseX;
             lastMouseY = mouseY;
 
-            // 4. 단어 블록 생성 (미세한 랜덤 오프셋 추가)
-            // 겹침을 방지하고 조형적인 리듬감을 줌
-            const offsetX = (Math.random() * 20 - 10); // ±10px
-            const offsetY = (Math.random() * 20 - 10); // ±10px
-            const currentX = mouseX + offsetX; // 현재 생성 위치 고정
-            const currentY = mouseY + offsetY;
-
-            // 1. 현재 문장에서 단어 추출
+            // 4. 단어 데이터 추출
             const currentFullSentence = chosenSentences[sentenceIndex];
             const wordsInSentence = currentFullSentence.split(' ');
             const currentWord = wordsInSentence[wordIndexInSentence];
 
-            // 2. 단어 블록(span) 생성
+            // 5. 단어 블록 생성 (박스 없이 글자만)
             const span = document.createElement('span');
-            span.className = 'word-block';
+            span.className = 'word-data';
             span.innerText = currentWord;
-            span.style.left = `${mouseX}px`;
-            span.style.top = `${mouseY}px`;
+            span.style.left = `${snappedX}px`;
+            span.style.top = `${snappedY}px`;
+            span.style.opacity = currentOpacity;
+            span.style.fontSize = `${currentFontSize}pt`;
             container.appendChild(span);
 
-            // 단어 블록들 간의 연결
+            // 6. 단어 간 연결 (붉은 선) - 좌표 동기화 수정됨
             if (lastWordX !== null && lastWordY !== null) {
                 const pathLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
                 pathLine.setAttribute("x1", lastWordX);
                 pathLine.setAttribute("y1", lastWordY);
-                pathLine.setAttribute("x2", currentX);
-                pathLine.setAttribute("y2", currentY);
+                pathLine.setAttribute("x2", snappedX);
+                pathLine.setAttribute("y2", snappedY);
                 pathLine.setAttribute("stroke", "#ff0000");
-                pathLine.setAttribute("stroke-width", "2.4"); // 궤적 선은 조금 더 얇게
-                pathLine.setAttribute("opacity", "1");
+                pathLine.setAttribute("stroke-width", currentStrokeWidth);
+                pathLine.setAttribute("opacity", currentOpacity);
                 lineCanvas.appendChild(pathLine);
-                // 이 선은 linesBuffer에 넣지 않습니다 (버튼을 따라다니지 않고 고정되어야 하므로)
             }
 
-            // 현재 좌표를 다음 단어를 위해 저장
-            lastWordX = currentX;
-            lastWordY = currentY;
+            // [중요] 다음 선의 시작점을 현재의 '스냅된' 좌표로 저장
+            lastWordX = snappedX; 
+            lastWordY = snappedY;
 
-            fullTraceText += currentWord + " "; 
-
-            // 현재 단어가 문장의 마지막 단어인지 확인 (줄바꿈 추가)
-            if (wordIndexInSentence === wordsInSentence.length - 1) {
-                fullTraceText += "\n\n"; // 문장 끝에 줄바꿈 두 번 추가 (가독성)
-            }
-
-            localStorage.setItem('userTraceData', fullTraceText);
-
-            // 단어 블록들과 해지하기 버튼 간의 연결
+            // 7. 버튼과 연결 (초록 선)
             const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            
-            // x1, y1은 단어의 고정 위치(mouseX, mouseY)
-            line.setAttribute("x1", mouseX);
-            line.setAttribute("y1", mouseY);
+            line.setAttribute("x1", snappedX);
+            line.setAttribute("y1", snappedY);
             line.setAttribute("stroke", "#33ff33");
-            line.setAttribute("stroke-width", "0.6"); // 4는 너무 두꺼울 수 있어 1~2 추천
-            line.setAttribute("opacity", lineOpacity);
+            line.setAttribute("stroke-width", currentStrokeWidth * 0.3); 
+            line.setAttribute("opacity", currentOpacity * 0.5);
             lineCanvas.appendChild(line);            
-            // 👉 생성된 선 객체와 단어의 고정 좌표를 배열에 저장
+
             linesBuffer.push({
                 element: line,
-                originX: mouseX,
-                originY: mouseY
+                originX: snappedX,
+                originY: snappedY
             });
+
+            // 아카이브 데이터 저장
+            fullTraceText += currentWord + " "; 
+            if (wordIndexInSentence === wordsInSentence.length - 1) {
+                fullTraceText += "\n\n";
+            }
+            localStorage.setItem('userTraceData', fullTraceText);
 
             // 인덱스 관리
             wordIndexInSentence++;
@@ -322,7 +328,6 @@
 
         function captureAndDownload() {
             
-            // 1. 캡처할 영역 지정 (전체 인터랙션 캔버스)
             const target = document.getElementById('interaction-canvas');
             const watermark = document.getElementById('capture-watermark');
             const systemData = document.getElementById('system-data-report');
@@ -334,19 +339,28 @@
             // 워터마크에 타임스탬프 실시간 주입
             const now = new Date();
             watermark.innerHTML = `© 2026 Cancellation Terms Archive — Oscar Kim<br>
-                                GENERATED ON: ${now.toLocaleString()}<br>
-                                ALL TRACES OF RESISTANCE ARE RECORDED.`;
+                                    GENERATED ON: ${now.toLocaleString()}<br>
+                                    ALL TRACES OF RESISTANCE ARE RECORDED.`;
+
             html2canvas(target, {
-                backgroundColor: "#000000", // 배경색 유지
-                scale: 3, // 고해상도 출력을 위해 배율 업 (프린트 고려)
-                useCORS: true, // 외부 리소스가 있을 경우 대비
-                logging: false,     // 콘솔 로그 지우기
-                letterRendering: true, // 텍스트 렌더링 최적화
+                backgroundColor: "#000000",
+                // [핵심] 사용자의 현재 창 크기가 아닌, 명시적인 수치를 부여함
+                width: 1920,
+                height: 1080,
+                scale: 1, // 이미 1920px이므로 scale은 1로 충분 (필요시 2로 높여 인쇄용 대응)
+                windowWidth: 1920,
+                windowHeight: 1080,
+                useCORS: true,
+                logging: false,
                 onclone: (clonedDoc) => {
-                    // 👉 복제된 캔버스(캡처용)에서 모든 단어 블록의 애니메이션을 제거하여 선명도 확보
-                    const clonedWords = clonedDoc.querySelectorAll('.word-block');
+                    // 복제된 문서의 타겟 요소를 강제로 1920x1080으로 고정
+                    const clonedTarget = clonedDoc.getElementById('interaction-canvas');
+                    clonedTarget.style.width = '1920px';
+                    clonedTarget.style.height = '1080px';
+                    
+                    const clonedWords = clonedDoc.querySelectorAll('.word-data');
                     clonedWords.forEach(word => {
-                        word.style.animation = 'none'; // 애니메이션 정지 상태로 고정
+                        word.style.animation = 'none';
                         word.style.opacity = '1';
                     });
                 }

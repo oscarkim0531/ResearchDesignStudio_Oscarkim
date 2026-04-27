@@ -43,6 +43,44 @@ body, html {
     height: 100%;
     z-index: 1; /* 버튼보다는 위, 단어 블록보다는 아래 */
     pointer-events: none;
+    stroke-linecap: square;
+    transition: stroke-width 0.3s ease, opacity 0.3s ease;
+}
+
+#interaction-canvas {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    overflow: hidden;
+    --capture-width: 1920;
+    --capture-height: 1080;
+    cursor: crosshair;
+    background-image: radial-gradient(#1a1a1a 1px, transparent 1px); /* 👈 1px의 미세한 점 */
+    background-size: 40px 40px; /* 👈 스크립트의 gridSize와 일치시킬 것 */
+}
+
+.is-capturing {
+    width: 1920px !important;
+    height: 1080px !important;
+}
+
+#interaction-shield {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000; /* 모든 요소보다 위에 배치하여 드래그 차단 */
+    background: transparent;
+    cursor: crosshair;
+}
+
+#interaction-canvas, .word-data, .system-declaration {
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none;     /* IE/Edge */
+    user-select: none;         /* 표준 */
+    -webkit-user-drag: none;   /* 이미지/텍스트 드래그 방지 */
 }
 
 /* 4. 해지하기 버튼 (최하단 레이어) */
@@ -68,6 +106,8 @@ body, html {
     background-color: #ff0000;
     color: #fff;
     box-shadow: 0 0 30px #ff0000;
+    z-index: 1001; /* 쉴드(1000)보다 높게 설정하여 클릭 허용 */
+    cursor: pointer;
 }
 
 /* 5. 단어 블록 (최상단 레이어) */
@@ -81,20 +121,17 @@ body, html {
     pointer-events: none;
 }
 
-.word-block {
+.word-data {
     position: absolute;
-    background-color: #ffffff; /* 흰색 배경 */
-    color: #000000;           /* 검은색 글자 */
-    outline: 2px solid #ff0000; /* 빨간색 테두리 */
-    padding: 6px 12px;
-    font-size: 18pt;          /* 적절한 가독성을 위한 크기 */
-    font-weight: 600;
+    color: #ffffff;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
     white-space: nowrap;
-    transform: translate(-50%, -50%); /* 마우스 중심 정렬 */
-    box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.8); /* 조형적 입체감 */
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 10;
     
-    /* 생성 시 살짝 나타나는 애니메이션 */
-    animation: wordPop 0.2s ease-out forwards;
+    transition: opacity 0.2s ease, font-size 0.2s ease;
 }
 
 @keyframes wordPop {
