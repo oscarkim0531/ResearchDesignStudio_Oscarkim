@@ -336,6 +336,9 @@
             systemData.style.color = "rgba(4, 255, 0, 0.9)";
             watermark.style.color = "rgba(4, 255, 0, 0.9)";
 
+            const captureWidth = 1920;
+            const captureHeight = 960;
+
             // 워터마크에 타임스탬프 실시간 주입
             const now = new Date();
             watermark.innerHTML = `© 2026 Cancellation Terms Archive — Oscar Kim<br>
@@ -345,19 +348,19 @@
             html2canvas(target, {
                 backgroundColor: "#000000",
                 // [핵심] 사용자의 현재 창 크기가 아닌, 명시적인 수치를 부여함
-                width: 1920,
-                height: 1080,
-                scale: 1, // 이미 1920px이므로 scale은 1로 충분 (필요시 2로 높여 인쇄용 대응)
-                windowWidth: 1920,
-                windowHeight: 1080,
+                width: captureWidth,
+                height: captureHeight,
+                scale: 2, // 이미 1920px이므로 scale은 1로 충분 (필요시 2로 높여 인쇄용 대응)
+                windowWidth: captureWidth,
+                windowHeight: captureHeight,
                 useCORS: true,
                 logging: false,
                 onclone: (clonedDoc) => {
                     // 복제된 문서의 타겟 요소를 강제로 1920x1080으로 고정
                     const clonedTarget = clonedDoc.getElementById('interaction-canvas');
-                    clonedTarget.style.width = '1920px';
-                    clonedTarget.style.height = '1080px';
-                    
+                    clonedTarget.style.width = `${captureWidth}px`;
+                    clonedTarget.style.height = `${captureHeight}px`;
+
                     const clonedWords = clonedDoc.querySelectorAll('.word-data');
                     clonedWords.forEach(word => {
                         word.style.animation = 'none';
